@@ -19,8 +19,8 @@ NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod> lampStrip(lampStripPixelCount, lamp
 NeoPixelAnimator animations(2);
 NeoPixelAnimator lampAnimations(lampStripPixelCount);
 
-const RgbColor black(0, 0, 0);
-RgbColor lettersColor = HslColor(random(360) / 360.0f, 1.0f, 255);
+RgbColor clearColor;
+RgbColor lettersColor;
 
 uint16_t lastLetter = 0;
 int8_t moveDir = 1; // track the direction of movement
@@ -52,6 +52,12 @@ void SetRandomSeed()
 
 		// Serial.println(seed);
 		randomSeed(seed);
+}
+
+void changeLettersColor() {
+  uint16_t baseColor =  random(360);
+  clearColor = HslColor(baseColor / 360.0f, 1.0f, 0.25);
+  lettersColor = HslColor(baseColor / 360.0f, 1.0f, 0.5);
 }
 
 void BlendAnimUpdate(const AnimationParam& param)
@@ -125,7 +131,7 @@ void MoveAnimUpdate(const AnimationParam& param)
 
 	for (uint8_t f = 0; f < ledPerLetter; f++) {
 		if (letters[lastLetter][f] != -1) {
-			lettersStrip.SetPixelColor(letters[lastLetter][f], black);
+			lettersStrip.SetPixelColor(letters[lastLetter][f], clearColor);
 		}
 
 		if (letters[nextLetter][f] != -1) {
@@ -141,7 +147,7 @@ void MoveAnimUpdate(const AnimationParam& param)
 		animations.RestartAnimation(param.index);
 
 		if (moveDir > 0) {
-			lettersColor = HslColor(random(360) / 360.0f, 1.0f, 255);
+			changeLettersColor();
 		}
 	}
 }
@@ -162,6 +168,8 @@ void setup()
 
 	SetRandomSeed();
 	SetupAnimations();
+  
+  changeLettersColor();
 }
 
 void loop()
